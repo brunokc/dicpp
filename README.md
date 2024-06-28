@@ -20,7 +20,7 @@ host.RegisterService<IFoo, Foo>();
 host.RegisterService<IBar, Bar>();
 ```
 
-Then a new service is created, that depends on IFoo and IBar:
+Then a new service `ServiceA` is created, that depends on `IFoo` and `IBar`:
 
 ```c++
 class ServiceA
@@ -34,7 +34,7 @@ public:
 As long as the service implements a static `Create()` method that matches the
 constructor signature, the dependency injection will happen automatically. The 
 static `Create()` method is needed because, as of C\++17, it's not possible to 
-deduce constructor arguments in C++.
+deduce the arguments to a constructor in C++.
 
 ```c++
 [...]
@@ -51,8 +51,8 @@ Now, the service can be added to the host:
 host.RegisterService<ServiceA>();
 ```
 
-During the registration, the arguments to `ServiceA::Create` are automatically
-determined, are looked up in the internal registry, and passed down to a new 
+During the registration, the arguments to `ServiceA::Create()` are automatically
+determined, are retrieved from the internal registry, and passed down to a new 
 instance of the service.
 
 Later, consumers of the Service Host can retrieve fully constructed instances of 
