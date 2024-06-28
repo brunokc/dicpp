@@ -62,3 +62,7 @@ any of the available services:
 auto service = host.GetService<ServiceA>();
 service->DoServiceWork();
 ```
+
+## Compatibility
+
+This project was verified to compile correctly on Visual Studio 2022 (version 17.10.3).
