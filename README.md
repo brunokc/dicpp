@@ -26,7 +26,8 @@ Then a new service is created, that depends on IFoo and IBar:
 class ServiceA
 {
 public:
-	ServiceA(std::shared_ptr<IFoo>& foo, std::shared_ptr<IBar>& bar);
+    ServiceA(std::shared_ptr<IFoo>& foo, std::shared_ptr<IBar>& bar);
+[...]
 }
 ```
 
@@ -37,16 +38,16 @@ deduce constructor arguments in C++.
 
 ```c++
 [...]
-static auto Create(std::shared_ptr<IFoo>& foo, std::shared_ptr<IBar>& bar)
-{
-	return std::make_shared<ServiceA>(foo, bar);
-}
+public:
+    static auto Create(std::shared_ptr<IFoo>& foo, std::shared_ptr<IBar>& bar)
+    {
+        return std::make_shared<ServiceA>(foo, bar);
+    }
 ```
 
 Now, the service can be added to the host:
 
 ```c++
-[...]
 host.RegisterService<ServiceA>();
 ```
 
