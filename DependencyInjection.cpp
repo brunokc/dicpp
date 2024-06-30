@@ -14,7 +14,7 @@ class Foo : public IFoo
 {
     void DoFoo(int) override
     {
-        printf("Foo::Foo\n");
+        printf("Foo::DoFoo\n");
     }
 };
 
@@ -28,7 +28,7 @@ class Bar : public IBar
 {
     int DoBar(const char*) override
     {
-        printf("Bar::Bar\n");
+        printf("Bar::DoBar\n");
         return -1;
     }
 };
@@ -43,7 +43,7 @@ class Zoo : public IZoo
 {
     bool DoZoo(float) override
     {
-        printf("Zoo::Zoo\n");
+        printf("Zoo::DoZoo\n");
         return true;
     }
 };
