@@ -44,7 +44,7 @@ public:
 
         // Invoke Create() method passing argument tuple
         auto service = template_helpers::invoke_with_tuple(&T::Create, params);
-        _registeredServices.emplace_back(ServiceEntry{ __uuidof(T), service });
+        _registeredServices.emplace_back(ServiceEntry{ __uuidof(T), std::move(service) });
     }
 
     template<class I, class T>
