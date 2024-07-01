@@ -17,14 +17,9 @@ else()
   add_compile_options(-Wall -Wextra -Wpedantic -Werror)
 endif()
 
+include_directories(src)
 
-# Add source to this project's executable.
-add_executable (DependencyInjection 
-	DependencyInjection.cpp
-	function_traits.h
-	service_host.h
-	template_helpers.h
-)
+add_subdirectory(test)
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET DependencyInjection PROPERTY CXX_STANDARD 20)
