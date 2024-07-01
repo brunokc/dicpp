@@ -10,22 +10,29 @@ namespace template_helpers {
     //
 
     template<typename T>
-    struct remove_shared_ptr
+    struct extract_ptr_type
+    {
+        using type = T;
+        //static_assert(std::is_void_v<T>, "What's going on?");
+    };
+
+    template<typename T>
+    struct extract_ptr_type<T*>
     {
         using type = T;
     };
 
     template<typename T>
-    struct remove_shared_ptr<std::shared_ptr<T>>
+    struct extract_ptr_type<std::shared_ptr<T>>
     {
         using type = T;
     };
 
     template<typename T>
-    struct remove_shared_ptr<const std::shared_ptr<T>&> : public remove_shared_ptr<std::shared_ptr<T>> {};
+    struct extract_ptr_type<const std::shared_ptr<T>&> : public extract_ptr_type<std::shared_ptr<T>> {};
 
     template<typename T>
-    using remove_shared_ptr_t = typename remove_shared_ptr<T>::type;
+    using extract_ptr_type_t = typename extract_ptr_type<T>::type;
 
     //
     // Parameter validation (compile time)
@@ -38,7 +45,7 @@ namespace template_helpers {
     struct validate_arg<TBase, T>
     {
         static_assert(
-            std::is_base_of_v<TBase, remove_shared_ptr_t<T>>,
+            std::is_base_of_v<TBase, extract_ptr_type_t<T>>,
             "Arguments to service Create() method must derive from IService");
     };
 
@@ -93,7 +100,7 @@ namespace template_helpers {
     auto interface_to_service_tuple_impl(const Resolver& resolver, IIDTuple&& it, std::index_sequence<I...>)
     {
         return std::make_tuple(
-            static_pointer_cast<remove_shared_ptr_t<std::tuple_element_t<I, TypeTuple>>>(
+            static_pointer_cast<extract_ptr_type_t<std::tuple_element_t<I, TypeTuple>>>(
                 resolver(std::get<I>(std::forward<IIDTuple>(it))))...);
     }
 
