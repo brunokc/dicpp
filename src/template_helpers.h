@@ -2,6 +2,8 @@
 
 #include <memory>
 #include <tuple>
+#include <typeindex>
+#include <type_traits>
 
 namespace template_helpers {
 
@@ -13,7 +15,6 @@ namespace template_helpers {
     struct extract_ptr_type
     {
         using type = T;
-        //static_assert(std::is_void_v<T>, "What's going on?");
     };
 
     template<typename T>
@@ -63,15 +64,32 @@ namespace template_helpers {
     };
 
     template <typename TBase, typename Tuple, std::size_t... I>
-    constexpr auto validate_arg_tuple_impl(Tuple&& t, std::index_sequence<I...>)
+    constexpr auto validate_arg_tuple_impl(std::index_sequence<I...>)
     {
-        validate_arg<TBase, std::get<I>(std::forward<Tuple>(t))...> validate;
+        validate_arg<TBase, std::tuple_element_t<I, Tuple>...> validate;
     }
 
     template <typename TBase, typename Tuple>
     constexpr auto validate_arg_tuple()
     {
         validate_arg<TBase, Tuple>{};
+    }
+
+    //
+    // Build tuple of raw interface pointers types (IFoo*) from tuple of interface types (compile time)
+    //
+
+    template <typename Tuple, std::size_t... I>
+    constexpr auto extract_smart_ptr_tuple_impl(std::index_sequence<I...>)
+    {
+        return std::tuple<std::add_pointer_t<extract_ptr_type_t<std::tuple_element_t<I, Tuple>>>...>{};
+    }
+
+    template<typename Tuple>
+    constexpr auto extract_smart_ptr_tuple()
+    {
+        constexpr auto size = std::tuple_size<std::decay_t<Tuple>>::value;
+        return extract_smart_ptr_tuple_impl<Tuple>(std::make_index_sequence<size>{});
     }
 
     //
@@ -92,25 +110,42 @@ namespace template_helpers {
     }
 
     //
+    // Build tuple of type indexes from tuple of interface types (run time)
+    //
+
+    template <typename Tuple, std::size_t... I>
+    auto interface_to_indexes_tuple_impl(std::index_sequence<I...>)
+    {
+        return std::make_tuple(std::type_index(typeid(extract_ptr_type_t<std::tuple_element_t<I, Tuple>>))...);
+    }
+
+    template<typename Tuple>
+    auto interface_to_indexes_tuple()
+    {
+        constexpr auto size = std::tuple_size<std::decay_t<Tuple>>::value;
+        return interface_to_indexes_tuple_impl<Tuple>(std::make_index_sequence<size>{});
+    }
+
+    //
     // Build tuple of shared_ptr's from a tuple of IIDs (run time)
     // (requires the usage of an external resolver at runtime)
     //
 
-    template <typename TypeTuple, typename Resolver, typename IIDTuple, std::size_t... I>
-    auto interface_to_service_tuple_impl(const Resolver& resolver, IIDTuple&& it, std::index_sequence<I...>)
+    template <typename TypeTuple, typename Resolver, typename IdxTuple, std::size_t... I>
+    auto interface_to_service_tuple_impl(const Resolver& resolver, IdxTuple&& it, std::index_sequence<I...>)
     {
         return std::make_tuple(
             static_pointer_cast<extract_ptr_type_t<std::tuple_element_t<I, TypeTuple>>>(
-                resolver(std::get<I>(std::forward<IIDTuple>(it))))...);
+                resolver(std::get<I>(std::forward<IdxTuple>(it))))...);
     }
 
-    template<typename TypeTuple, typename Resolver, typename IIDTuple>
-    auto interface_to_service_tuple(Resolver&& resolver, IIDTuple&& it)
+    template<typename TypeTuple, typename Resolver, typename IdxTuple>
+    auto interface_to_service_tuple(Resolver&& resolver, IdxTuple&& it)
     {
-        constexpr auto size = std::tuple_size<std::decay_t<IIDTuple>>::value;
+        constexpr auto size = std::tuple_size<std::decay_t<IdxTuple>>::value;
         return interface_to_service_tuple_impl<TypeTuple>(
             std::forward<Resolver>(resolver), 
-            std::forward<IIDTuple>(it), 
+            std::forward<IdxTuple>(it),
             std::make_index_sequence<size>{});
     }
 

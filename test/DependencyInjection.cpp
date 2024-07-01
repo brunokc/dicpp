@@ -4,8 +4,7 @@
 #include "template_helpers.h"
 #include "service_host.h"
 
-struct __declspec(uuid("6C51D48C-99C0-48EF-BD97-1D3870C9C738"))
-IFoo : public IService
+struct IFoo : public IService
 {
     virtual void DoFoo(int) = 0;
 };
@@ -18,8 +17,7 @@ class Foo : public IFoo
     }
 };
 
-struct __declspec(uuid("BA0D80EB-7D5F-44B5-A48D-476F5DEA0192"))
-IBar : public IService
+struct IBar : public IService
 {
     virtual int DoBar(const char*) = 0;
 };
@@ -33,8 +31,7 @@ class Bar : public IBar
     }
 };
 
-struct __declspec(uuid("B45603EA-1365-4504-9C32-675276237A69"))
-IZoo : public IService
+struct IZoo : public IService
 {
     virtual bool DoZoo(float) = 0;
 };
@@ -48,8 +45,7 @@ class Zoo : public IZoo
     }
 };
 
-class __declspec(uuid("3327B3CD-AE0D-499A-9833-628FEF559513"))
-ServiceA : public IService
+class ServiceA : public IService
 {
 public:
     ServiceA(const std::shared_ptr<IFoo>& foo, const std::shared_ptr<IBar>& bar) :
